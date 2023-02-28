@@ -24,10 +24,12 @@ public class ServiceChat implements Runnable{
 				InputStream inputStream = s.getInputStream();
 				ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
 				
+				//Declare the user to the server
 				objectOutputStream.writeObject(ihm.getUser());
 				
 				Thread listener = new Thread(new Listener(objectInputStream, ihm));
 				Thread sender = new Thread(new Sender(objectOutputStream, ihm));
+				
 				listener.start(); sender.start();
 				
 				try {

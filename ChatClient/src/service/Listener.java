@@ -19,6 +19,7 @@ public class Listener implements Runnable {
 		try {
 			while(true) {
 				try {
+					//Reads messages from the socket input stream and calls the ihm
 					Message m = (Message) input.readObject();
 					ihm.handleMessage(m);
 				} catch (ClassNotFoundException e) {

@@ -14,9 +14,7 @@ public class Sender implements Runnable{
 		this.ihm = ihm;
 	}
 	
-	private void envoyerMsg(Message m) throws IOException {
-		//Message m = new Message(user, text);
-		
+	private void sendMessage(Message m) throws IOException {
 	    output.writeObject(m);
 	}
 
@@ -24,7 +22,8 @@ public class Sender implements Runnable{
 	public void run() {
 		try {
 			while(true) {
-				envoyerMsg(ihm.nextMessage());
+				//calls the interface for a message to send to the server
+				sendMessage(ihm.nextMessage());
 			}
 		}
 		catch(IOException e){

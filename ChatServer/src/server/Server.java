@@ -15,7 +15,6 @@ public class Server implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("serveurlancé");
 		try {
 			while(true) 
 				new Thread(factory.getService(servSocket.accept())).start();

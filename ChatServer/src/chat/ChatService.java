@@ -27,7 +27,9 @@ public class ChatService implements Service {
 		this.socket = accept;
 		this.historique = new LinkedList<>();
 	}
-	
+	/*
+	 * @brief sends the message to all users currently connected
+	 */
 	private void sendToAll(Message m) throws IOException {
 		for(ObjectOutputStream output : all.values()) {
 			System.out.println("je renvoie "+m);
@@ -44,13 +46,19 @@ public class ChatService implements Service {
 		    
 		    OutputStream outputStream = socket.getOutputStream();
 		    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+		    
+		    //Add the connecting user to the hashmap
 		    Object user = objectInputStream.readObject();
 		    if(user instanceof User) {
 				this.user = (User) user;
 			}
 		    all.put(this.user, objectOutputStream);
+		    
+		    
+		    
 			while(true) {
 				try {
+					//Reads object from the socket
 					Object o = objectInputStream.readObject();
 					if(o instanceof Message) {
 						Message msg = (Message) o;
@@ -67,10 +75,10 @@ public class ChatService implements Service {
 			}
 		}catch(IOException e) {
 			if(e instanceof SocketException) {
-				System.out.println("Déconnexion de "+user);
-				e.printStackTrace();
+				//User disconnection
 				try {
 					this.socket.close();
+					all.remove(this.user);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -79,7 +87,6 @@ public class ChatService implements Service {
 				e.printStackTrace();
 			}
 		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
