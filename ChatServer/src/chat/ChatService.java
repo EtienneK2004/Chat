@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class ChatService implements Service {
 
 	private Socket socket;
 	private User user;
-	private static List<ObjectOutputStream> all = new LinkedList<>();
+	private static HashMap<User, ObjectOutputStream> all = new HashMap<>();
 	private List<Message> historique;
 
 	public ChatService(Socket accept) {
@@ -28,7 +29,7 @@ public class ChatService implements Service {
 	}
 	
 	private void sendToAll(Message m) throws IOException {
-		for(ObjectOutputStream output : all) {
+		for(ObjectOutputStream output : all.values()) {
 			System.out.println("je renvoie "+m);
 			output.writeObject(m);
 		}
@@ -43,14 +44,16 @@ public class ChatService implements Service {
 		    
 		    OutputStream outputStream = socket.getOutputStream();
 		    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-		    all.add(objectOutputStream);
+		    Object user = objectInputStream.readObject();
+		    if(user instanceof User) {
+				this.user = (User) user;
+			}
+		    all.put(this.user, objectOutputStream);
 			while(true) {
 				try {
 					Object o = objectInputStream.readObject();
 					if(o instanceof Message) {
 						Message msg = (Message) o;
-						System.out.println("Nouveau message: "+o);
-						user = msg.getUser();
 						historique.add(msg);
 						sendToAll(msg);
 					}
@@ -65,10 +68,19 @@ public class ChatService implements Service {
 		}catch(IOException e) {
 			if(e instanceof SocketException) {
 				System.out.println("Déconnexion de "+user);
+				e.printStackTrace();
+				try {
+					this.socket.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 			else {
 				e.printStackTrace();
 			}
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 
